@@ -12,7 +12,7 @@ use namespace::autoclean;
 # use autodie;
 # use MooseX::Params::Validate;
 
-use Linux::ForkAsync;
+use Sys::ForkAsync;
 
 extends 'Sys::CmdMod::Plugin';
 
@@ -21,6 +21,8 @@ has '_init_ok' => (
     'isa'     => 'Bool',
     'default' => 0,
 );
+
+sub _init_priority { return 0; }
 
 sub BUILD {
     my $self = shift;
@@ -51,15 +53,26 @@ sub cmd {
 
 sub DEMOLISH {
     my $self = shift;
+    
+    # dirty hack, as long as Proc::ProcessTable is broken ...
+    my $syncs_running = qx(ps x | grep sys-cmdmod-eatmydata-sync | grep -v grep | wc -l);
+    chomp($syncs_running);
 
     # run 'sync' in background
-    if ( $self->_init_ok() ) {
-        my $FA  = Linux::ForkAsync::->new();
+    if ( $self->_init_ok() && !$syncs_running ) {
+        #say 'Scheduling a background sync ...';
+        my $FA  = Sys::ForkAsync::->new({
+            'setsid'    => 1,
+            'name'      => 'sys-cmdmod-eatmydata-sync',
+            'redirect_output' => 1,
+        });
         my $sub = sub {
             sleep 1;
             system('sync');
         };
         $FA->dispatch($sub);
+    } else {
+        #say 'NOT scheduling a background sync. Already one running ...';
     }
 
     return 1;

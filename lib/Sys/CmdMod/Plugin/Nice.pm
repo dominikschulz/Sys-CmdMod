@@ -14,11 +14,13 @@ use namespace::autoclean;
 
 extends 'Sys::CmdMod::Plugin';
 
-has 'priority' => (
+has 'niceness' => (
     'is'       => 'rw',
     'isa'      => 'Num',
     'default'  => 19,
 );
+
+sub _init_priority { return 10; }
 
 sub BUILD {
     my $self = shift;
@@ -37,7 +39,7 @@ sub _init_binary {
 sub cmd {
     my $self = shift;
     my $cmd  = shift;
-    return $self->binary() . ' -n ' . $self->priority() . q{ } . $cmd;
+    return $self->binary() . ' -n ' . $self->niceness() . q{ } . $cmd;
 }
 
 no Moose;

@@ -19,24 +19,13 @@ use File::Blarf;
 
 extends 'Sys::CmdMod::Plugin';
 
-has 'priority' => (
-    'is'       => 'rw',
-    'isa'      => 'Int',
-    'default' => 7,
-);
-
 has 'class' => (
     'is'       => 'rw',
     'isa'      => 'Int',
     'default' => 3,
 );
 
-has 'sysinfo' => (
-    'is'      => 'ro',
-    'isa'     => 'Linux::Inventory',
-    'lazy'    => 1,
-    'builder' => '_init_sysinfo',
-);
+sub _init_priority { return 7; }
 
 sub _init_binary {
     my $self = shift;
