@@ -53,7 +53,7 @@ sub cmd {
 
 sub DEMOLISH {
     my $self = shift;
-    
+
     # dirty hack, as long as Proc::ProcessTable is broken ...
     my $syncs_running = qx(ps x | grep sys-cmdmod-eatmydata-sync | grep -v grep | wc -l);
     chomp($syncs_running);
